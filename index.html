@@ -39,8 +39,8 @@
         <h1 class="text-center">Serene Meditation</h1>
         <select id="meditationSelect" class="form-select mb-4">
             <option value="">Choose your journey...</option>
-            <option value="https://freemusicarchive.org/music/holiznapatreon/meditation/manipura-chakra/">5-Minute Breathing</option>
-            <option value="https://freemusicarchive.org/music/Synapsis/single/Meditation_Master_1756/">10-Minute Body Scan</option>
+            <option value="https://drive.google.com/file/d/1W47CIqmGsZGKzEEXmgaQByFYHzwxLznN/preview">5-Minute Breathing</option>
+            <option value="https://drive.google.com/file/d/147qR85OBkWdtpQSYGvQfWddtNS64fxsa/preview">10-Minute Body Scan</option>
         </select>
         <audio id="player" controls class="w-100 mb-4" style="display: none;"></audio>
         <div id="message" class="text-center"></div>
@@ -56,9 +56,25 @@
                 player.src = e.target.value;
                 player.style.display = 'block';
                 message.textContent = 'Close your eyes, breathe deeply, and press play when ready.';
+                
+                // If it's a Google Drive link, embed it in an iframe
+                if (e.target.value.includes('drive.google.com')) {
+                    player.style.display = 'none';
+                    let iframe = document.createElement('iframe');
+                    iframe.src = e.target.value;
+                    iframe.width = '100%';
+                    iframe.height = '100';
+                    iframe.allow = 'autoplay';
+                    player.parentNode.insertBefore(iframe, player);
+                }
             } else {
                 player.style.display = 'none';
                 message.textContent = '';
+                // Remove iframe if exists
+                let iframe = player.previousElementSibling;
+                if (iframe && iframe.tagName === 'IFRAME') {
+                    iframe.remove();
+                }
             }
         });
     </script>
