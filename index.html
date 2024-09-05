@@ -54,55 +54,42 @@
     <div class="container">
         <h1 class="text-center">Serene Meditation</h1>
         <select id="meditationSelect" class="form-select mb-4">
-            <option value="">Choose your journey...</option>
-            <option value="https://drive.google.com/file/d/1W47CIqmGsZGKzEEXmgaQByFYHzwxLznN/preview">5-Minute Breathing</option>
-            <option value="https://drive.google.com/file/d/147qR85OBkWdtpQSYGvQfWddtNS64fxsa/preview">10-Minute Body Scan</option>
-        </select>
-        <div id="audioContainer"></div>
-        <div id="loading">Loading meditation...</div>
-        <div id="message" class="text-center mt-3"></div>
-    </div>
+    <option value="">Choose your journey...</option>
+    <option value="https://drive.google.com/uc?export=download&id=1W47CIqmGsZGKzEEXmgaQByFYHzwxLznN">5-Minute Breathing</option>
+    <option value="https://drive.google.com/uc?export=download&id=147qR85OBkWdtpQSYGvQfWddtNS64fxsa">10-Minute Body Scan</option>
+</select>
 
-    <script>
-        const select = document.getElementById('meditationSelect');
-        const audioContainer = document.getElementById('audioContainer');
-        const message = document.getElementById('message');
-        const loading = document.getElementById('loading');
+<script>
+    const select = document.getElementById('meditationSelect');
+    const audioContainer = document.getElementById('audioContainer');
+    const message = document.getElementById('message');
+    const loading = document.getElementById('loading');
 
-        select.addEventListener('change', (e) => {
-            // Remove any existing audio elements or iframes
-            audioContainer.innerHTML = '';
-            message.textContent = '';
+    select.addEventListener('change', (e) => {
+        audioContainer.innerHTML = '';
+        message.textContent = '';
+        
+        if (e.target.value) {
+            loading.style.display = 'block';
             
-            if (e.target.value) {
-                loading.style.display = 'block';
-                
-                if (e.target.value.includes('drive.google.com')) {
-                    let iframe = document.createElement('iframe');
-                    iframe.src = e.target.value;
-                    iframe.width = '100%';
-                    iframe.height = '100';
-                    iframe.allow = 'autoplay';
-                    audioContainer.appendChild(iframe);
-                } else {
-                    let audio = document.createElement('audio');
-                    audio.src = e.target.value;
-                    audio.controls = true;
-                    audio.className = 'w-100 mb-4';
-                    audioContainer.appendChild(audio);
-                }
+            let audio = document.createElement('audio');
+            audio.src = e.target.value;
+            audio.controls = true;
+            audio.className = 'w-100 mb-4';
+            audioContainer.appendChild(audio);
 
-                message.textContent = 'Close your eyes, breathe deeply, and press play when ready.';
-                e.target.options[e.target.selectedIndex].classList.add('selected');
-                
-                // Hide loading indicator after a short delay
-                setTimeout(() => {
-                    loading.style.display = 'none';
-                }, 1000);
-            } else {
-                Array.from(select.options).forEach(opt => opt.classList.remove('selected'));
-            }
-        });
-    </script>
+            message.textContent = 'Close your eyes, breathe deeply, and press play when ready.';
+            Array.from(select.options).forEach(opt => opt.classList.remove('selected'));
+            e.target.options[e.target.selectedIndex].classList.add('selected');
+            
+            // Hide loading indicator after a short delay
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 1000);
+        } else {
+            Array.from(select.options).forEach(opt => opt.classList.remove('selected'));
+        }
+    });
+</script>
 </body>
 </html>
