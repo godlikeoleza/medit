@@ -8,10 +8,17 @@
     <style>
         body {
             background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
             min-height: 100vh;
             display: flex;
             align-items: center;
             font-family: 'Arial', sans-serif;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         .container {
             max-width: 500px;
@@ -25,12 +32,21 @@
             font-weight: 300;
             margin-bottom: 30px;
         }
-        select, audio {
+        select, audio, iframe {
             border-radius: 10px;
         }
         #message {
             color: #00838f;
             font-style: italic;
+            min-height: 24px;
+        }
+        .selected {
+            background-color: #e0f7fa;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -39,42 +55,52 @@
         <h1 class="text-center">Serene Meditation</h1>
         <select id="meditationSelect" class="form-select mb-4">
             <option value="">Choose your journey...</option>
-            <option value="https://drive.google.com/file/d/1W47CIqmGsZGKzEEXmgaQByFYHzwxLznN/preview">5-Minute Breathing</option>
-            <option value="https://drive.google.com/file/d/147qR85OBkWdtpQSYGvQfWddtNS64fxsa/preview">10-Minute Body Scan</option>
+            <option value="https://drive.google.com/file/d/YOUR_FILE_ID_1/preview">5-Minute Breathing</option>
+            <option value="https://drive.google.com/file/d/YOUR_FILE_ID_2/preview">10-Minute Body Scan</option>
         </select>
-        <audio id="player" controls class="w-100 mb-4" style="display: none;"></audio>
-        <div id="message" class="text-center"></div>
+        <div id="audioContainer"></div>
+        <div id="loading">Loading meditation...</div>
+        <div id="message" class="text-center mt-3"></div>
     </div>
 
     <script>
         const select = document.getElementById('meditationSelect');
-        const player = document.getElementById('player');
+        const audioContainer = document.getElementById('audioContainer');
         const message = document.getElementById('message');
+        const loading = document.getElementById('loading');
 
         select.addEventListener('change', (e) => {
+            // Remove any existing audio elements or iframes
+            audioContainer.innerHTML = '';
+            message.textContent = '';
+            
             if (e.target.value) {
-                player.src = e.target.value;
-                player.style.display = 'block';
-                message.textContent = 'Close your eyes, breathe deeply, and press play when ready.';
+                loading.style.display = 'block';
                 
-                // If it's a Google Drive link, embed it in an iframe
                 if (e.target.value.includes('drive.google.com')) {
-                    player.style.display = 'none';
                     let iframe = document.createElement('iframe');
                     iframe.src = e.target.value;
                     iframe.width = '100%';
                     iframe.height = '100';
                     iframe.allow = 'autoplay';
-                    player.parentNode.insertBefore(iframe, player);
+                    audioContainer.appendChild(iframe);
+                } else {
+                    let audio = document.createElement('audio');
+                    audio.src = e.target.value;
+                    audio.controls = true;
+                    audio.className = 'w-100 mb-4';
+                    audioContainer.appendChild(audio);
                 }
+
+                message.textContent = 'Close your eyes, breathe deeply, and press play when ready.';
+                e.target.options[e.target.selectedIndex].classList.add('selected');
+                
+                // Hide loading indicator after a short delay
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 1000);
             } else {
-                player.style.display = 'none';
-                message.textContent = '';
-                // Remove iframe if exists
-                let iframe = player.previousElementSibling;
-                if (iframe && iframe.tagName === 'IFRAME') {
-                    iframe.remove();
-                }
+                Array.from(select.options).forEach(opt => opt.classList.remove('selected'));
             }
         });
     </script>
