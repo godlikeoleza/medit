@@ -14,6 +14,10 @@
             display: flex;
             align-items: center;
             font-family: 'Arial', sans-serif;
+            transition: background 0.3s ease;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #263238, #37474F);
         }
         @keyframes gradient {
             0% { background-position: 0% 50%; }
@@ -26,30 +30,87 @@
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dark-mode .container {
+            background-color: rgba(55, 71, 79, 0.9);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
         h1 {
             color: #00838f;
             font-weight: 300;
             margin-bottom: 30px;
+            transition: color 0.3s ease;
         }
-        select, audio {
+        .dark-mode h1 {
+            color: #4fc3f7;
+        }
+        select, audio, #volumeControl {
             border-radius: 10px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .dark-mode select, .dark-mode #volumeControl {
+            background-color: #455a64;
+            color: #fff;
         }
         #message {
             color: #00838f;
             font-style: italic;
+            transition: color 0.3s ease;
+        }
+        .dark-mode #message {
+            color: #4fc3f7;
         }
         .selected {
             background-color: #e0f7fa;
+        }
+        .dark-mode .selected {
+            background-color: #455a64;
         }
         #loading {
             display: none;
             text-align: center;
             margin-top: 10px;
         }
+        #description {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #00838f;
+            transition: color 0.3s ease;
+        }
+        .dark-mode #description {
+            color: #4fc3f7;
+        }
+        #darkModeToggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        #progressBar {
+            width: 100%;
+            height: 5px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        #progress {
+            width: 0%;
+            height: 100%;
+            background-color: #00838f;
+            transition: width 0.5s ease;
+        }
+        .dark-mode #progress {
+            background-color: #4fc3f7;
+        }
     </style>
 </head>
 <body>
+    <button id="darkModeToggle">🌓</button>
     <div class="container">
         <h1 class="text-center">Serene Meditation</h1>
         <select id="meditationSelect" class="form-select mb-4">
@@ -58,8 +119,11 @@
             <option value="147qR85OBkWdtpQSYGvQfWddtNS64fxsa">10-Minute Body Scan</option>
         </select>
         <div id="audioContainer" class="mb-4"></div>
+        <input type="range" id="volumeControl" class="form-range mb-3" min="0" max="1" step="0.1" value="1">
+        <div id="progressBar"><div id="progress"></div></div>
         <div id="loading" class="mb-3">Loading meditation...</div>
         <div id="message" class="text-center"></div>
+        <div id="description" class="text-center"></div>
     </div>
 
     <script>
@@ -67,10 +131,23 @@
         const audioContainer = document.getElementById('audioContainer');
         const message = document.getElementById('message');
         const loading = document.getElementById('loading');
+        const description = document.getElementById('description');
+        const volumeControl = document.getElementById('volumeControl');
+        const progressBar = document.getElementById('progress');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        let audio;
+
+        const descriptions = {
+            "1W47CIqmGsZGKzEEXmgaQByFYHzwxLznN": "A short breathing exercise to help you relax and focus.",
+            "147qR85OBkWdtpQSYGvQfWddtNS64fxsa": "A guided meditation to help you become aware of your body and release tension."
+        };
 
         select.addEventListener('change', (e) => {
             audioContainer.innerHTML = '';
             message.textContent = '';
+            description.textContent = '';
+            progressBar.style.width = '0%';
             
             if (e.target.value) {
                 loading.style.display = 'block';
@@ -86,15 +163,36 @@
                 audioContainer.appendChild(iframe);
 
                 message.textContent = 'Close your eyes, breathe deeply, and press play when ready.';
+                description.textContent = descriptions[fileId];
                 Array.from(select.options).forEach(opt => opt.classList.remove('selected'));
                 e.target.options[e.target.selectedIndex].classList.add('selected');
                 
                 iframe.onload = () => {
                     loading.style.display = 'none';
+                    audio = iframe.contentWindow.document.querySelector('audio');
+                    if (audio) {
+                        audio.volume = volumeControl.value;
+                        audio.addEventListener('timeupdate', updateProgress);
+                    }
                 };
             } else {
                 Array.from(select.options).forEach(opt => opt.classList.remove('selected'));
             }
+        });
+
+        volumeControl.addEventListener('input', (e) => {
+            if (audio) {
+                audio.volume = e.target.value;
+            }
+        });
+
+        function updateProgress() {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
         });
     </script>
 </body>
